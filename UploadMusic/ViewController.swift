@@ -7,10 +7,11 @@
 //
 import MediaPlayer
 import UIKit
+import FirebaseStorage
 
 class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     let selectedSongArtCover = UIImageView(frame: CGRect(x: 20, y: 100, width: 200, height: 200))
-    let selectSongTitleLabel = UILabel(frame: CGRect(x: 20, y: 40, width: 100, height: 40))
+    let selectSongTitleLabel = UILabel(frame: CGRect(x: 20, y: 40, width: 200, height: 40))
     let selectMusicButton = UIButton(frame: CGRect(x: 240, y: 40, width: 160, height: 40))
     var selectedSong: MPMediaItem!
     var mediaItemCollection: MPMediaItemCollection?
@@ -48,7 +49,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
             selectedSongArtCover.image = artwork.image(at: CGSize(width: 400, height: 400))
         }
         if let songTitle = selectedSong.value(forProperty: MPMediaItemPropertyTitle) as? String{
-            selectSongTitleLabel.text = "Song Title" + songTitle
+            selectSongTitleLabel.text = "Title: " + songTitle
         }
     }
     
