@@ -15,6 +15,8 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     let selectMusicButton = UIButton(frame: CGRect(x: 240, y: 40, width: 160, height: 40))
     var selectedSong: MPMediaItem!
     var mediaItemCollection: MPMediaItemCollection?
+    let storage = Storage.storage()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +27,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
         view.addSubview(selectMusicButton)
         selectMusicButton.setTitle("Select Music", for: .normal)
         selectMusicButton.addTarget(self, action: #selector(openMusicPicker), for: .touchUpInside)
+
     }
     
     @objc func openMusicPicker() {
@@ -41,7 +44,8 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
         self.mediaItemCollection = mediaItemCollection
         selectedSong = mediaItemCollection.items[0]
         getSongCoverArt()
-        playUnProtectedSong()
+        playSong()
+        exportSong()
     }
     
     func getSongCoverArt(){
@@ -54,7 +58,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     }
     
     
-    func playUnProtectedSong() {
+    func playSong() {
         if let mediaItemCollection = mediaItemCollection {
             let appMusicPlayer = MPMusicPlayerController.applicationMusicPlayer
             appMusicPlayer.setQueue(with: mediaItemCollection)
@@ -63,12 +67,26 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     }
     
     func exportSong() {
-        let songURL = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL)
+        let songURL = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL) as! URL
         if selectedSong.hasProtectedAsset || songURL  == nil {
             print("You cant upload this song as it is protected.")
         }
-        let itemUrl = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL) as! URL
-        
+
+        let storageRef = storage.reference()
+
+        let audioRef = storageRef.child("audio/test.mp3")
+
+        let uploadTask = audioRef.putFile(from: songURL, metadata: nil) { metadata, error in
+          guard let metadata = metadata else {
+            return
+          }
+          let size = metadata.size
+          audioRef.downloadURL { (url, error) in
+            guard let downloadURL = url else {
+              return
+            }
+          }
+        }
     }
     
     func mediaPickerDidCancel(_ mediaPicker: MPMediaPickerController) {
