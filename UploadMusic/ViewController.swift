@@ -67,16 +67,18 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     }
     
     func exportSong() {
-        let songURL = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL) as! URL
-        if selectedSong.hasProtectedAsset || songURL  == nil {
+        let songURL = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL) as? URL
+
+        guard let unwrappedSongURL = songURL,  selectedSong.hasProtectedAsset else {
             print("You cant upload this song as it is protected.")
+            return
         }
 
         let storageRef = storage.reference()
 
         let audioRef = storageRef.child("audio/test.mp3")
 
-        let uploadTask = audioRef.putFile(from: songURL, metadata: nil) { metadata, error in
+        let uploadTask = audioRef.putFile(from: unwrappedSongURL, metadata: nil) { metadata, error in
           guard let metadata = metadata else {
             return
           }
