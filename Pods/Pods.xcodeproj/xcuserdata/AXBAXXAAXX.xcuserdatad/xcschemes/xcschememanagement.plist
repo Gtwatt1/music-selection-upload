@@ -74,26 +74,33 @@
 			<key>orderHint</key>
 			<integer>8</integer>
 		</dict>
-		<key>Pods-UploadMusic.xcscheme</key>
+		<key>NVActivityIndicatorView.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>11</integer>
 		</dict>
-		<key>Pods-UploadMusicTests.xcscheme</key>
+		<key>Pods-UploadMusic.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>12</integer>
 		</dict>
-		<key>PromisesObjC.xcscheme</key>
+		<key>Pods-UploadMusicTests.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>13</integer>
+		</dict>
+		<key>PromisesObjC.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>14</integer>
 		</dict>
 		<key>nanopb.xcscheme</key>
 		<dict>

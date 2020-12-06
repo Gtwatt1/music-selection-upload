@@ -66,11 +66,15 @@ PODS:
     - nanopb/encode (= 2.30906.0)
   - nanopb/decode (2.30906.0)
   - nanopb/encode (2.30906.0)
+  - NVActivityIndicatorView (5.1.1):
+    - NVActivityIndicatorView/Base (= 5.1.1)
+  - NVActivityIndicatorView/Base (5.1.1)
   - PromisesObjC (1.2.11)
 
 DEPENDENCIES:
   - Firebase/Core
   - Firebase/Storage
+  - NVActivityIndicatorView
 
 SPEC REPOS:
   trunk:
@@ -85,6 +89,7 @@ SPEC REPOS:
     - GoogleUtilities
     - GTMSessionFetcher
     - nanopb
+    - NVActivityIndicatorView
     - PromisesObjC
 
 SPEC CHECKSUMS:
@@ -99,8 +104,9 @@ SPEC CHECKSUMS:
   GoogleUtilities: ffb2f4159f2c897c6e8992bd7fbcdef8a300589c
   GTMSessionFetcher: b3503b20a988c4e20cc189aa798fd18220133f52
   nanopb: 1bf24dd71191072e120b83dd02d08f3da0d65e53
+  NVActivityIndicatorView: 1f6c5687f1171810aa27a3296814dc2d7dec3667
   PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
 
-PODFILE CHECKSUM: c55a4a4602f8f3f94b5ef0e159affeb0ff1443b0
+PODFILE CHECKSUM: 0386e6325c004369c4fd7d72987855ff3fd4bf76
 
 COCOAPODS: 1.10.0
