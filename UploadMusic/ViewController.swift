@@ -15,16 +15,17 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     let selectMusicButton = UIButton(frame: CGRect(x: 240, y: 40, width: 160, height: 40))
     var selectedSong: MPMediaItem!
     var mediaItemCollection: MPMediaItemCollection?
+    let storage = Storage.storage()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        
         view.addSubview(selectedSongArtCover)
         view.addSubview(selectSongTitleLabel)
         view.addSubview(selectMusicButton)
         selectMusicButton.setTitle("Select Music", for: .normal)
         selectMusicButton.addTarget(self, action: #selector(openMusicPicker), for: .touchUpInside)
+
     }
     
     @objc func openMusicPicker() {
@@ -41,7 +42,8 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
         self.mediaItemCollection = mediaItemCollection
         selectedSong = mediaItemCollection.items[0]
         getSongCoverArt()
-        playUnProtectedSong()
+        playSong()
+        exportSong()
     }
     
     func getSongCoverArt(){
@@ -54,7 +56,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     }
     
     
-    func playUnProtectedSong() {
+    func playSong() {
         if let mediaItemCollection = mediaItemCollection {
             let appMusicPlayer = MPMusicPlayerController.applicationMusicPlayer
             appMusicPlayer.setQueue(with: mediaItemCollection)
@@ -63,12 +65,59 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     }
     
     func exportSong() {
-        let songURL = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL)
-        if selectedSong.hasProtectedAsset || songURL  == nil {
-            print("You cant upload this song as it is protected.")
-        }
-        let itemUrl = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL) as! URL
+        let songURL = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL) as? URL
         
+        guard let unwrappedSongURL = songURL,  !selectedSong.hasProtectedAsset else {
+            print("You cant upload this song as it is protected.")
+            return
+        }
+        //Async call, would take some seconds, show a loader
+        exportToTemporaryFileLocation(unwrappedSongURL) { (url, error) in
+            if let url = url {
+                self.uploadToFirebase(songURL: url)
+            }
+        }
+
+    }
+    
+    func uploadToFirebase(songURL : URL){
+        let storageRef = storage.reference()
+        let audioRef = storageRef.child("audio/\(UUID().uuidString).mp3")
+        //Async call, would take some seconds, show a loader
+        let uploadTask = audioRef.putFile(from: songURL, metadata: nil) { metadata, error in
+          guard let metadata = metadata else {
+            return
+          }
+          let size = metadata.size
+          audioRef.downloadURL { (url, error) in
+            guard let downloadURL = url else {
+              return
+            }
+          }
+        }
+    }
+    
+    func exportToTemporaryFileLocation(_ assetURL: URL, completionHandler: @escaping (_ fileURL: URL?, _ error: Error?) -> ()) {
+        let asset = AVURLAsset(url: assetURL)
+        guard let exporter = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetAppleM4A) else {
+            completionHandler(nil, ExportError.unableToCreateExporter)
+            return
+        }
+
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(NSUUID().uuidString)
+            .appendingPathExtension("m4a")
+
+        exporter.outputURL = fileURL
+        exporter.outputFileType = AVFileType(rawValue: "com.apple.m4a-audio")
+
+        exporter.exportAsynchronously {
+            if exporter.status == .completed {
+                completionHandler(fileURL, nil)
+            } else {
+                completionHandler(nil, exporter.error)
+            }
+        }
     }
     
     func mediaPickerDidCancel(_ mediaPicker: MPMediaPickerController) {
@@ -76,4 +125,8 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     }
     
     
+}
+
+enum ExportError: Error {
+    case unableToCreateExporter
 }
