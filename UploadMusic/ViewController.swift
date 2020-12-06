@@ -20,8 +20,6 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        
         view.addSubview(selectedSongArtCover)
         view.addSubview(selectSongTitleLabel)
         view.addSubview(selectMusicButton)
@@ -68,17 +66,25 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
     
     func exportSong() {
         let songURL = selectedSong.value(forProperty: MPMediaItemPropertyAssetURL) as? URL
-
-        guard let unwrappedSongURL = songURL,  selectedSong.hasProtectedAsset else {
+        
+        guard let unwrappedSongURL = songURL,  !selectedSong.hasProtectedAsset else {
             print("You cant upload this song as it is protected.")
             return
         }
+        //Async call, would take some seconds, show a loader
+        exportToTemporaryFileLocation(unwrappedSongURL) { (url, error) in
+            if let url = url {
+                self.uploadToFirebase(songURL: url)
+            }
+        }
 
+    }
+    
+    func uploadToFirebase(songURL : URL){
         let storageRef = storage.reference()
-
-        let audioRef = storageRef.child("audio/test.mp3")
-
-        let uploadTask = audioRef.putFile(from: unwrappedSongURL, metadata: nil) { metadata, error in
+        let audioRef = storageRef.child("audio/\(UUID().uuidString).mp3")
+        //Async call, would take some seconds, show a loader
+        let uploadTask = audioRef.putFile(from: songURL, metadata: nil) { metadata, error in
           guard let metadata = metadata else {
             return
           }
@@ -91,9 +97,36 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate{
         }
     }
     
+    func exportToTemporaryFileLocation(_ assetURL: URL, completionHandler: @escaping (_ fileURL: URL?, _ error: Error?) -> ()) {
+        let asset = AVURLAsset(url: assetURL)
+        guard let exporter = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetAppleM4A) else {
+            completionHandler(nil, ExportError.unableToCreateExporter)
+            return
+        }
+
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(NSUUID().uuidString)
+            .appendingPathExtension("m4a")
+
+        exporter.outputURL = fileURL
+        exporter.outputFileType = AVFileType(rawValue: "com.apple.m4a-audio")
+
+        exporter.exportAsynchronously {
+            if exporter.status == .completed {
+                completionHandler(fileURL, nil)
+            } else {
+                completionHandler(nil, exporter.error)
+            }
+        }
+    }
+    
     func mediaPickerDidCancel(_ mediaPicker: MPMediaPickerController) {
         print("did cancel selecting a song")
     }
     
     
+}
+
+enum ExportError: Error {
+    case unableToCreateExporter
 }
