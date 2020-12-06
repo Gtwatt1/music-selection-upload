@@ -6,4 +6,4 @@
 ### - The stop button stops the music player altogether.
 ### - The upload button, once clicked, uploads the selected song to firebase and then an alert pops up to show confimation of a successful or failed upload as the case may be.
 
-![GIF showing a demo of the app](https://drive.google.com/file/d/1-gB8rCgPW_j8FP7PhTLqHrnuq7bWx5af/view?usp=sharing)
+![GIF showing a demo of the app](https://drive.google.com/file/d/1PR2RyjKwumyRGiGxpu3meX-yT8Qfg4Ma/view?usp=sharing)
