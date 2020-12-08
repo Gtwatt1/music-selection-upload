@@ -7,6 +7,7 @@ target 'UploadMusic' do
 
   pod 'Firebase/Core'
   pod 'Firebase/Storage'
+  pod 'NVActivityIndicatorView'
 
   target 'UploadMusicTests' do
     inherit! :search_paths
